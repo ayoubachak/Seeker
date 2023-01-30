@@ -7,6 +7,10 @@ from PyQt5.QtPrintSupport import *
 import os
 import sys
 
+from PyQt5.QtWebEngineWidgets import QWebEngineView, QWebEnginePage
+from PyQt5.QtWebChannel import QWebChannel
+from PyQt5.QtWidgets import QTabWidget
+
 # creating main window class
 class MainWindow(QMainWindow):
 
@@ -14,9 +18,12 @@ class MainWindow(QMainWindow):
     def __init__(self, *args, **kwargs):
         super(MainWindow, self).__init__(*args, **kwargs)
 
-
         # creating a QWebEngineView
         self.browser = QWebEngineView()
+
+        # setting dev tools
+        dev_tools_page = QWebEnginePage(self.browser)
+        self.browser.page().setDevToolsPage(dev_tools_page)
 
         # setting default browser url as google
         self.browser.setUrl(QUrl("http://duckduckgo.com"))
@@ -27,8 +34,13 @@ class MainWindow(QMainWindow):
         # adding action when loading is finished
         self.browser.loadFinished.connect(self.update_title)
 
-        # set this browser as central widget or main window
-        self.setCentralWidget(self.browser)
+        # Attempt for the tabs
+        self.tabs = QTabWidget()
+        self.setCentralWidget(self.tabs)
+        # add the QWebEngineView to a new tab
+        index = self.tabs.addTab(self.browser, "New Tab")
+        # set the new tab as the current tab
+        self.tabs.setCurrentIndex(index)
 
         # creating a status bar object
         self.status = QStatusBar()
@@ -79,6 +91,11 @@ class MainWindow(QMainWindow):
         home_btn.setStatusTip("Go home")
         home_btn.triggered.connect(self.navigate_home)
         navtb.addAction(home_btn)
+
+        new_tab_btn = QAction("New Tab", self)
+        new_tab_btn.setStatusTip("Open a new tab")
+        new_tab_btn.triggered.connect(self.new_tab)
+        navtb.addAction(new_tab_btn)
 
         # adding a separator in the tool bar
         navtb.addSeparator()
@@ -140,6 +157,29 @@ class MainWindow(QMainWindow):
 
         # setting cursor position of the url bar
         self.urlbar.setCursorPosition(0)
+
+    def new_tab(self):
+        # creating a QWebEngineView
+        browser = QWebEngineView()
+
+        # setting dev tools
+        dev_tools_page = QWebEnginePage(browser)
+        browser.page().setDevToolsPage(dev_tools_page)
+
+        # setting default browser url as duckduckgo
+        browser.setUrl(QUrl("http://duckduckgo.com"))
+
+        # adding action when url get changed
+        browser.urlChanged.connect(self.update_urlbar)
+
+        # adding action when loading is finished
+        browser.loadFinished.connect(self.update_title)
+
+        # add the QWebEngineView to a new tab
+        index = self.tabs.addTab(browser, "New Tab")
+
+        # set the new tab as the current tab
+        self.tabs.setCurrentIndex(index)
 
 
 # creating a pyQt5 application
