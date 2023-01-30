@@ -97,6 +97,11 @@ class MainWindow(QMainWindow):
         new_tab_btn.triggered.connect(self.new_tab)
         navtb.addAction(new_tab_btn)
 
+        close_tab_btn = QAction("Close Tab", self)
+        close_tab_btn.setStatusTip("Close the current tab")
+        close_tab_btn.triggered.connect(lambda: self.closeTab(self.tabs.currentIndex()))
+        navtb.addAction(close_tab_btn)
+
         # adding a separator in the tool bar
         navtb.addSeparator()
 
@@ -180,6 +185,10 @@ class MainWindow(QMainWindow):
 
         # set the new tab as the current tab
         self.tabs.setCurrentIndex(index)
+
+    def closeTab(self, index):
+        # remove the tab at the given index
+        self.tabs.removeTab(index)
 
 
 # creating a pyQt5 application
